@@ -1,12 +1,12 @@
 // script.js
 
 const imageGallery = document.getElementById('image-gallery');
-const 1xlUmCtxGCt0KrdUabaSwl7YXi38AyasP = '1xlUmCtxGCt0KrdUabaSwl7YXi38AyasP';
-const https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec = 'https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec';
+const googleDriveFolderId = '1xlUmCtxGCt0KrdUabaSwl7YXi38AyasP';
+const googleSheetsApiUrl = 'https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec';
 
 // Fetch images from Google Drive
 async function fetchImages() {
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${1xlUmCtxGCt0KrdUabaSwl7YXi38AyasP}'+in+parents&key=YOUR_API_KEY`);
+    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${googleDriveFolderId}'+in+parents&key=YOUR_API_KEY&fields=files(id,name,mimeType)`);
     const data = await response.json();
     return data.files;
 }
@@ -33,7 +33,7 @@ async function renderImages() {
         likeButton.addEventListener('click', () => handleLike(image.id, input.value));
 
         const likesCount = document.createElement('span');
-        likesCount.textContent = `Likes: ${getLikes(image.id)}`;
+        likesCount.textContent = `Bəyənmələr: ${getLikes(image.id)}`;
 
         likeSection.appendChild(input);
         likeSection.appendChild(likeButton);
@@ -68,19 +68,19 @@ async function handleLike(imageId, userId) {
 
     // Update likes count on the UI
     const likesCount = document.querySelector(`.image-card[data-id='${imageId}'] .like-section span`);
-    likesCount.textContent = `Likes: ${getLikes(imageId)}`;
+    likesCount.textContent = `Bəyənmələr: ${await getLikes(imageId)}`;
 }
 
 // Check if IP has already liked this image
 async function checkIpLike(imageId, ip) {
-    const response = await fetch(`${https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec}/check?imageId=${imageId}&ip=${ip}`);
+    const response = await fetch(`${googleSheetsApiUrl}?action=check&imageId=${imageId}&ip=${ip}`);
     const data = await response.json();
     return data.hasLiked;
 }
 
 // Update likes in Google Sheets
 async function updateLikes(imageId, userId, ip) {
-    await fetch(`${https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec}/update`, {
+    await fetch(`${googleSheetsApiUrl}?action=update`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ async function updateLikes(imageId, userId, ip) {
 
 // Get likes count from Google Sheets
 async function getLikes(imageId) {
-    const response = await fetch(`${https://script.google.com/macros/s/AKfycbxDdXQjIoDTCdmJFrLZ87ZDsXlYhTJTPPgLp_QHI8Ud0Da9Uxy8rPZ2ogpPnrn0jTEo/exec}/likes?imageId=${imageId}`);
+    const response = await fetch(`${googleSheetsApiUrl}?action=likes&imageId=${imageId}`);
     const data = await response.json();
     return data.likes;
 }
